@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSE 流式测试页面</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 { color: #333; margin-bottom: 20px; font-size: 22px; }
+        h2 { color: #555; margin: 20px 0 10px; font-size: 18px; }
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            padding: 8px 16px;
+            background: #409eff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        button:hover { background: #66b1ff; }
+        button:disabled { background: #c0c4cc; cursor: not-allowed; }
+        button.danger { background: #f56c6c; }
+        button.danger:hover { background: #f78989; }
+        .output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 12px;
+            border-radius: 4px;
+            font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            min-height: 120px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .progress-list { list-style: none; padding: 0; }
+        .progress-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .progress-item:last-child { border-bottom: none; }
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            margin-right: 10px;
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+        .progress-dot.active { background: #67c23a; animation: pulse 1s infinite; }
+        .progress-dot.done { background: #67c23a; }
+        .progress-text { flex: 1; }
+        .progress-event {
+            font-size: 11px;
+            color: #999;
+            background: #f5f5f5;
+            padding: 1px 6px;
+            border-radius: 3px;
+            margin-left: 8px;
+        }
+        .status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+        .status.connected { background: #e1f3d8; color: #67c23a; }
+        .status.disconnected { background: #fde2e2; color: #f56c6c; }
+        .status.connecting { background: #faecd8; color: #e6a23c; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <h1>SSE 流式输出测试页面</h1>
+
+    <!-- 模块1：AI流式对话 -->
+    <div class="card">
+        <h2>1. AI 流式对话</h2>
+        <div class="input-group">
+            <input type="text" id="aiMessage" placeholder="输入消息" value="介绍一下宿舍管理规定">
+            <button id="aiSendBtn" onclick="startAiChat()">发送</button>
+            <button class="danger" onclick="stopAiChat()">停止</button>
+        </div>
+        <div id="aiStatus" class="status disconnected">未连接</div>
+        <div class="output" id="aiOutput">等待发送...</div>
+    </div>
+
+    <!-- 模块2：报修进度推送 -->
+    <div class="card">
+        <h2>2. 报修进度推送（自定义事件类型）</h2>
+        <div class="input-group">
+            <input type="text" id="repairId" placeholder="报修单号" value="R001">
+            <button onclick="startRepairProgress()">查询进度</button>
+            <button class="danger" onclick="stopRepairProgress()">停止</button>
+        </div>
+        <div id="repairStatus" class="status disconnected">未连接</div>
+        <ul class="progress-list" id="progressList">
+            <li class="progress-item">
+                <div class="progress-dot" id="dot-submitted"></div>
+                <div class="progress-text" id="text-submitted">等待提交...</div>
+                <span class="progress-event">submitted</span>
+            </li>
+            <li class="progress-item">
+                <div class="progress-dot" id="dot-assigned"></div>
+                <div class="progress-text" id="text-assigned">等待派单...</div>
+                <span class="progress-event">assigned</span>
+            </li>
+            <li class="progress-item">
+                <div class="progress-dot" id="dot-repairing"></div>
+                <div class="progress-text" id="text-repairing">等待维修...</div>
+                <span class="progress-event">repairing</span>
+            </li>
+            <li class="progress-item">
+                <div class="progress-dot" id="dot-completed"></div>
+                <div class="progress-text" id="text-completed">等待完成...</div>
+                <span class="progress-event">completed</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- 模块3：同步 vs 流式对比 -->
+    <div class="card">
+        <h2>3. 同步 vs 流式对比</h2>
+        <div class="input-group">
+            <input type="text" id="compareMsg" placeholder="输入对比消息" value="讲个笑话">
+            <button onclick="compareSync()">同步调用</button>
+            <button onclick="compareStream()">流式调用</button>
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <div style="flex: 1;">
+                <div style="font-size: 12px; color: #999; margin-bottom: 4px;">同步（等完整回复）</div>
+                <div class="output" id="syncOutput" style="min-height: 80px;">等待发送...</div>
+            </div>
+            <div style="flex: 1;">
+                <div style="font-size: 12px; color: #999; margin-bottom: 4px;">流式（逐字推送）</div>
+                <div class="output" id="streamOutput" style="min-height: 80px;">等待发送...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 模块1：AI流式对话 ====================
+        let aiEventSource = null;
+
+        function startAiChat() {
+            const message = document.getElementById('aiMessage').value;
+            if (!message) return alert('请输入消息');
+            if (aiEventSource) aiEventSource.close();
+            const output = document.getElementById('aiOutput');
+            output.textContent = '';
+            updateStatus('aiStatus', 'connecting', '连接中...');
+            const url = `/api/aichat/stream?conversationId=web-test&message=${encodeURIComponent(message)}`;
+            aiEventSource = new EventSource(url);
+            aiEventSource.onmessage = function(event) {
+                output.textContent += event.data;
+                output.scrollTop = output.scrollHeight;
+                updateStatus('aiStatus', 'connected', '接收中');
+            };
+            aiEventSource.onerror = function() {
+                if (aiEventSource.readyState === EventSource.CLOSED) {
+                    updateStatus('aiStatus', 'disconnected', '已完成');
+                } else {
+                    updateStatus('aiStatus', 'disconnected', '连接断开');
+                }
+            };
+        }
+
+        function stopAiChat() {
+            if (aiEventSource) {
+                aiEventSource.close();
+                aiEventSource = null;
+                updateStatus('aiStatus', 'disconnected', '已停止');
+            }
+        }
+
+        // ==================== 模块2：报修进度推送 ====================
+        let repairEventSource = null;
+
+        function startRepairProgress() {
+            const repairId = document.getElementById('repairId').value || 'R001';
+            if (repairEventSource) repairEventSource.close();
+            ['submitted', 'assigned', 'repairing', 'completed'].forEach(type => {
+                document.getElementById('dot-' + type).className = 'progress-dot';
+            });
+            document.getElementById('text-submitted').textContent = '等待提交...';
+            document.getElementById('text-assigned').textContent = '等待派单...';
+            document.getElementById('text-repairing').textContent = '等待维修...';
+            document.getElementById('text-completed').textContent = '等待完成...';
+            updateStatus('repairStatus', 'connecting', '连接中...');
+            const url = `/api/sse/repair-progress?repairId=${encodeURIComponent(repairId)}`;
+            repairEventSource = new EventSource(url);
+            repairEventSource.addEventListener("submitted", function(event) {
+                document.getElementById('dot-submitted').className = 'progress-dot done';
+                document.getElementById('text-submitted').textContent = event.data;
+                updateStatus('repairStatus', 'connected', '接收中');
+            });
+            repairEventSource.addEventListener("assigned", function(event) {
+                document.getElementById('dot-assigned').className = 'progress-dot done';
+                document.getElementById('text-assigned').textContent = event.data;
+            });
+            repairEventSource.addEventListener("repairing", function(event) {
+                document.getElementById('dot-repairing').className = 'progress-dot active';
+                document.getElementById('text-repairing').textContent = event.data;
+            });
+            repairEventSource.addEventListener("completed", function(event) {
+                document.getElementById('dot-repairing').className = 'progress-dot done';
+                document.getElementById('dot-completed').className = 'progress-dot done';
+                document.getElementById('text-completed').textContent = event.data;
+                repairEventSource.close();
+                repairEventSource = null;
+                updateStatus('repairStatus', 'disconnected', '已完成');
+            });
+            repairEventSource.onerror = function() {
+                if (repairEventSource.readyState === EventSource.CLOSED) {
+                    updateStatus('repairStatus', 'disconnected', '已完成');
+                }
+            };
+        }
+
+        function stopRepairProgress() {
+            if (repairEventSource) {
+                repairEventSource.close();
+                repairEventSource = null;
+                updateStatus('repairStatus', 'disconnected', '已停止');
+            }
+        }
+
+        // ==================== 模块3：同步 vs 流式对比 ====================
+        async function compareSync() {
+            const message = document.getElementById('compareMsg').value;
+            const output = document.getElementById('syncOutput');
+            output.textContent = '等待中...（同步模式需要等AI完整回复）';
+            const startTime = Date.now();
+            try {
+                const response = await fetch('/api/aichat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ conversationId: 'compare-sync', message: message })
+                });
+                const result = await response.json();
+                const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+                output.textContent = `[等待${elapsed}秒后一次性返回]\n\n${result.data}`;
+            } catch (e) {
+                output.textContent = '请求失败: ' + e.message;
+            }
+        }
+
+        function compareStream() {
+            const message = document.getElementById('compareMsg').value;
+            const output = document.getElementById('streamOutput');
+            output.textContent = '';
+            const startTime = Date.now();
+            let firstChunk = true;
+            const url = `/api/aichat/stream?conversationId=compare-stream&message=${encodeURIComponent(message)}`;
+            const es = new EventSource(url);
+            es.onmessage = function(event) {
+                if (firstChunk) {
+                    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+                    output.textContent = `[${elapsed}秒后开始输出]\n\n`;
+                    firstChunk = false;
+                }
+                output.textContent += event.data;
+                output.scrollTop = output.scrollHeight;
+            };
+            es.onerror = function() { es.close(); };
+        }
+
+        // ==================== 工具函数 ====================
+        function updateStatus(elementId, status, text) {
+            const el = document.getElementById(elementId);
+            el.className = 'status ' + status;
+            el.textContent = text;
+        }
+    </script>
+</body>
+</html>
