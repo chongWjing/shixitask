@@ -1,10 +1,15 @@
 server:
   port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
 
 spring:
   ai:
     openai:
-      api-key: ${DEEPSEEK_API_KEY:此处写api}
+      api-key: ${DEEPSEEK_API_KEY:sk-13ea1c84aaa240cd88f15022cd6ef5a9}
       base-url: https://api.deepseek.com
       chat:
         options:

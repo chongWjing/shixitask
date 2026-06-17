@@ -38,7 +38,7 @@ public class StreamChatController {
      * 【流式接口】流式对话
      * GET /chat/stream?message=你好
      */
-    @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/stream", produces = "text/event-stream;charset=UTF-8")
     public Flux<String> chatStream(@RequestParam String message) {
         return chatClient.prompt()
                 .user(message)

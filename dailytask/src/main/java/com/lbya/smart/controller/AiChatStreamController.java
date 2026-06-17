@@ -31,7 +31,7 @@ public class AiChatStreamController {
      * 高级流式对话（带自定义SSE事件类型 + ChatMemory）
      * GET /api/aichat/stream-v2?conversationId=user001&message=你好
      */
-    @GetMapping(value = "/stream-v2", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/stream-v2", produces = "text/event-stream;charset=UTF-8")
     public Flux<ServerSentEvent<String>> chatStreamV2(
             @RequestParam String conversationId,
             @RequestParam String message) {

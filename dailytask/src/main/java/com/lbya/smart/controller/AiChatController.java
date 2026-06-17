@@ -41,7 +41,7 @@ public class AiChatController {
      * 流式对话（SSE）
      * GET /api/aichat/stream?conversationId=user001&message=你好
      */
-    @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/stream", produces = "text/event-stream;charset=UTF-8")
     public Flux<String> chatStream(@RequestParam String conversationId,
                                    @RequestParam String message) {
         return aiChatService.chatStream(conversationId, message);

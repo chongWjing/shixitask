@@ -35,7 +35,7 @@ public class SseEmitterChatController {
      * SseEmitter方式流式对话
      * GET /sse-emitter/chat?message=你好
      */
-    @GetMapping(value = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/chat", produces = "text/event-stream;charset=UTF-8")
     public SseEmitter chatStream(@RequestParam String message) {
         SseEmitter emitter = new SseEmitter(60000L);
 
