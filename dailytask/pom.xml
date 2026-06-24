@@ -40,6 +40,13 @@
             <version>${spring-ai.version}</version>
         </dependency>
 
+        <!-- Spring AI MCP Client：通过 stdio 连接 MCP Server，获取工具列表 -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-mcp-client</artifactId>
+            <version>${spring-ai.version}</version>
+        </dependency>
+
         <!-- Lombok：自动生成 getter/setter 等样板代码 -->
         <dependency>
             <groupId>org.projectlombok</groupId>

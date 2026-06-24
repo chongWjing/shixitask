@@ -15,5 +15,14 @@ spring:
       base-url: https://api.deepseek.com
       chat:
         options:
-          model: deepseek-chat
+          model: deepseek-v4-flash
           temperature: 0.7
+    # MCP Client 配置（暂时禁用，需要先构建 mcp-calculator-server）
+    # mcp:
+    #   client:
+    #     servers:
+    #       calculator:
+    #         command: java
+    #         args:
+    #           - -jar
+    #           - C:/Users/W2774/Desktop/实习作业/mcp-calculator-server/target/mcp-calculator-server-0.0.1-SNAPSHOT.jar

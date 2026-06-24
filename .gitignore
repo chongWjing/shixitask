@@ -1,5 +1,6 @@
 # Compiled class files
 target/
+out/
 CLAUDE.md
 
 # 敏感配置文件（含 API Key）
