@@ -22,5 +22,5 @@ export function payOrder(id){
 
 //确认收货
 export function confirmOrder(id){
-    return request.put(`/order/confirm/${id}`)  
+    return request.put(`/order/confirm/${id}`)
 }

@@ -43,8 +43,8 @@ const routes = [
         meta: { requiresAuth: true }
       },
       { path: 'order', name: 'ShopOrder', component: ShopOrder, meta: { requiresAuth: true } },
-      { path: 'orders', name: 'ShopMyOrders', component: ShopMyOrders, meta: { requiresAuth: true } },
-      { path: 'myorder', name: 'ShopMyOrders2', component: ShopMyOrders, meta: { requiresAuth: true } },
+      { path: 'orders', name: 'ShopOrders', component: ShopMyOrders, meta: { requiresAuth: true } },
+      { path: 'myorder', name: 'ShopMyOrders', component: ShopMyOrders, meta: { requiresAuth: true } },
       {
         path: 'profile',
         component: Profile,

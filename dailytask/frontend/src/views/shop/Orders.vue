@@ -111,7 +111,7 @@
   </div>
 </template>
 <script>
-import { getCartList } from '../../api/cart'
+import { getCartList, deleteCartItem } from '../../api/cart'
 import { getProductDetail } from '../../api/product'
 import { createOrder, cancelOrder } from '../../api/order'
 import { ElMessage } from 'element-plus'
@@ -212,48 +212,50 @@ export default {
 
     /** 提交订单（事务性：顺序创建，失败回滚） */
     async onSubmit() {
+      if (this.submitLoading) return
+      this.submitLoading = true
+
       try {
         await this.$refs.formRef.validate()
       } catch {
         ElMessage.warning('请填写完整的收货信息')
+        this.submitLoading = false
         return
       }
-
-      this.submitLoading = true
       const createdOrderIds = [] // 记录已创建成功的订单ID，用于失败时回滚
-      
+      const cartItemIds = []     // 记录需要从购物车删除的项ID
+
       try {
         // 顺序创建订单（确保按顺序创建，便于回滚）
         for (const item of this.products) {
-          const res = createOrder({
+          const res = await createOrder({
             productId: item.product.id,
             quantity: item.quantity,
             receiverName: this.form.receiverName,
             receiverPhone: this.form.receiverPhone,
             receiverAddress: this.form.receiverAddress
           })
-          // 假设返回的数据中包含订单ID
           if (res.data && res.data.id) {
             createdOrderIds.push(res.data.id)
           }
+          // 记录购物车项ID（仅购物车结算模式有真实cart id）
+          if (item.id && !String(item.id).startsWith('direct_')) {
+            cartItemIds.push(item.id)
+          }
         }
-        
-        // 全部订单创建成功
+
+        // 全部订单创建成功，删除购物车中已购买的商品
+        if (cartItemIds.length > 0) {
+          await Promise.allSettled(cartItemIds.map(id => deleteCartItem(id)))
+        }
+
         ElMessage.success('下单成功！')
         this.$router.push('/shop/myorder')
       } catch (e) {
         // 任一订单创建失败，回滚已创建的订单
         if (createdOrderIds.length > 0) {
-          // 尝试取消已创建的订单（模拟回滚）
-          await Promise.allSettled(
-            createdOrderIds.map(orderId => {
-              // 使用PUT请求取消订单（后端需支持cancel接口）
-              const cancelUrl = `order/cancel/${orderId}`
-              return request.put(cancelUrl)
-            })
-          )
+          await Promise.allSettled(createdOrderIds.map(id => cancelOrder(id)))
         }
-        console.log(e)
         ElMessage.error('订单创建失败，已回滚所有操作')
       } finally {
         this.submitLoading = false

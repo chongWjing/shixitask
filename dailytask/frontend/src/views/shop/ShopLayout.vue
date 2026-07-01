@@ -11,9 +11,9 @@
             <span class="header-top__logout" @click="handleLogout">退出</span>
           </template>
           <template v-else>
-            <span class="header-top__login" @click="$router.push('/login')">登录</span>
+            <span class="header-top__login" @click="$router.push('/shop/login')">登录</span>
             <span class="header-top__sep">|</span>
-            <span class="header-top__register" @click="$router.push('/login')">注册</span>
+            <span class="header-top__register" @click="$router.push('/shop/login')">注册</span>
           </template>
         </div>
       </div>
@@ -202,10 +202,19 @@ export default {
     },
 
     // 退出登录
-    handleLogout() {
-      localStorage.removeItem('token')
-      localStorage.removeItem('username')
-      this.$router.push('/')
+    async handleLogout() {
+      try {
+        await this.$confirm('确定要退出登录吗？', '提示', { type: 'warning' })
+        try {
+          const { logout } = await import('../../api/user')
+          await logout()
+        } catch { /* 忽略 */ }
+        localStorage.removeItem('token')
+        localStorage.removeItem('username')
+        localStorage.removeItem('role')
+        this.$router.push('/')
+        this.$message.success('已退出登录')
+      } catch { /* 取消 */ }
     }
   },
 

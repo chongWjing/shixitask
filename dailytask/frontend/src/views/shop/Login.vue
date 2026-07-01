@@ -166,7 +166,8 @@ export default {
           ElMessage.success('登录成功，欢迎回来！')
           const redirect = this.$route.query.redirect || '/shop'
           this.$router.replace(redirect)
-        } catch (_) {
+        } catch (e) {
+          ElMessage.error(e.message || '操作失败，请重试')
         } finally {
           this.loginLoading = false
         }
@@ -183,7 +184,8 @@ export default {
           this.loginForm.password = ''
           this.registerForm = { username: '', password: '', phone: '' }
           this.activeTab = 'login'
-        } catch (_) {
+        } catch (e) {
+          ElMessage.error(e.message || '操作失败，请重试')
         } finally {
           this.registerLoading = false
         }

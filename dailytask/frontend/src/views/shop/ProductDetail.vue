@@ -59,7 +59,7 @@
         </div>
         <div class="detail-quantity">
           <span class="detail-quantity__label">购买数量</span>
-          <el-input-number v-model="quantity" :min="1" :max="99" size="large" />
+          <el-input-number v-model="quantity" :min="1" :max="product.stock || 99" size="large" />
         </div>
         <div class="detail-actions">
           <el-button type="danger" size="large" round @click="handleBuy">立即购买</el-button>
@@ -101,9 +101,35 @@ export default {
       finally { this.loading = false }
     },
     handleBuy() {
-      this.$message.success('已下单：' + this.product.name + ' × ' + this.quantity)
+      // 检查登录
+      const token = localStorage.getItem('token')
+      if (!token) {
+        this.$message.warning('请先登录')
+        this.$router.push('/shop/login?redirect=' + encodeURIComponent(this.$route.fullPath))
+        return
+      }
+      // 检查库存
+      if (this.product.stock <= 0) {
+        this.$message.error('商品库存不足')
+        return
+      }
+      // 跳转到下单页，携带直接购买参数
+      this.$router.push({
+        path: '/shop/order',
+        query: {
+          directBuy: 'true',
+          productId: this.product.id,
+          quantity: this.quantity
+        }
+      })
     },
-    handleAddCart() {
+    async handleAddCart() {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        this.$message.warning('请先登录')
+        this.$router.push('/shop/login?redirect=' + encodeURIComponent(this.$route.fullPath))
+        return
+      }
       if (!this.product || !this.product.id){
         this.$message.error('商品不存在')
         return
@@ -113,13 +139,13 @@ export default {
         return
       }
       try{
-         addToCart({
+        await addToCart({
           productId: this.product.id,
           quantity: this.quantity
         })
         this.$message.success('已加入购物车：' + this.product.name + ' × ' + this.quantity)
       }catch(err){
-        this.$message.error(err.message)
+        this.$message.error(err.message || '加入购物车失败')
       }
     }
   },

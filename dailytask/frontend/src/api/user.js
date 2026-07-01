@@ -9,3 +9,13 @@ export function login(data){
 export function register(data){
     return request.post('/user/register',data)
 }
+
+//获取当前用户信息  /api/user/info
+export function getUserInfo(){
+    return request.get('/user/info')
+}
+
+//退出登录  /api/user/logout
+export function logout(){
+    return request.post('/user/logout')
+}

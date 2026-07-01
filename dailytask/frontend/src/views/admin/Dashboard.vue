@@ -47,7 +47,7 @@ export default {
       try {
         const result = await getStatsOverview()
         if (result.code === 200) this.stats = result.data
-      } catch (e) { console.error('加载统计失败', e) }
+      } catch (e) { /* 错误由拦截器处理 */ }
     }
   },
   created() { this.loadStats() }

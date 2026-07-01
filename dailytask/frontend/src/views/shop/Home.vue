@@ -70,7 +70,7 @@
           <h2 class="section-main-title">鲜花推荐</h2>
           <p class="section-main-sub">适合各场合的鲜花佳选</p>
         </div>
-        <span class="section-more-link">更多 &gt;</span>
+        <span class="section-more-link" @click="$router.push('/shop')">更多 &gt;</span>
       </div>
 
       <div class="recommend-grid">
@@ -420,7 +420,6 @@ export default {
       immediate: true,
       handler(val) {
         this.keyword = val || ''
-        this.searchInput = val || ''
         this.currentPage = 1
         this.loadProducts()
       }

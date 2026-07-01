@@ -50,6 +50,13 @@ export default {
     formatTime(t) { if(!t)return'--'; const d=new Date(t); return isNaN(d)?t:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0') },
     async handleUpdateStatus(row,status) { const txt=status===2?'发货':'完成'; try{await this.$confirm(`确定要${txt}该订单？`,'确认',{type:'warning'}); const r=await updateOrderStatus({id:row.id,status}); if(r.code===200){ElMessage.success(`${txt}成功`);this.loadOrders()}}catch(e){} }
   },
-  created() { this.loadOrders() }
+  created() {
+    this.loadOrders()
+    this._onVisible = () => { if (!document.hidden) this.loadOrders() }
+    document.addEventListener('visibilitychange', this._onVisible)
+  },
+  beforeUnmount() {
+    document.removeEventListener('visibilitychange', this._onVisible)
+  }
 }
 </script>

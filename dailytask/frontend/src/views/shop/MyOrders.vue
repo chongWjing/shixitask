@@ -132,7 +132,22 @@ export default {
       return this.filteredOrders.slice(start, start + this.pageSize)
     }
   },
-  created() { this.loadOrders() },
+  watch: {
+    '$route'(to) {
+      if (to.name === 'ShopOrders' || to.name === 'ShopMyOrders') {
+        this.loadOrders()
+      }
+    }
+  },
+  created() {
+    this.loadOrders()
+    // 切换标签页回来时自动刷新订单
+    this._onVisible = () => { if (!document.hidden) this.loadOrders() }
+    document.addEventListener('visibilitychange', this._onVisible)
+  },
+  beforeUnmount() {
+    document.removeEventListener('visibilitychange', this._onVisible)
+  },
   methods: {
     /** 获取状态文本 */
     getStatusText(status) {
@@ -147,7 +162,6 @@ export default {
       this.loading = true
       try {
         const res = await getMyOrders()
-        console.log(res)
         this.orderList = Array.isArray(res.data) ? res.data : []
       } catch (e) {
         this.orderList = []
@@ -207,7 +221,7 @@ export default {
     /** 再次购买 / 重新下单 → 跳转商品详情 */
     onRebuy(order) {
       if (order.productId) {
-        this.$router.push(`/shop/product/${order.productId}`)
+        this.$router.push(`/shop/detail/${order.productId}`)
       } else {
         this.$router.push('/shop')
       }

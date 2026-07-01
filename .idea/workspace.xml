@@ -4,7 +4,25 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="32e9d444-61ef-4d15-91ce-a937aa8bd9b5" name="更改" comment="" />
+    <list default="true" id="32e9d444-61ef-4d15-91ce-a937aa8bd9b5" name="更改" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dailytask/backend/src/main/java/com/lbya/backend/BackendApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/dailytask/backend/src/main/java/com/lbya/backend/BackendApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dailytask/backend/src/main/java/com/lbya/backend/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/dailytask/backend/src/main/java/com/lbya/backend/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dailytask/frontend/src/api/order.js" beforeDir="false" afterPath="$PROJECT_DIR$/dailytask/frontend/src/api/order.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dailytask/frontend/src/api/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/dailytask/frontend/src/api/user.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dailytask/frontend/src/router/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/dailytask/frontend/src/router/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dailytask/frontend/src/views/admin/Dashboard.vue" beforeDir="false" afterPath="$PROJECT_DIR$/dailytask/frontend/src/views/admin/Dashboard.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dailytask/frontend/src/views/admin/Layout.vue" beforeDir="false" afterPath="$PROJECT_DIR$/dailytask/frontend/src/views/admin/Layout.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dailytask/frontend/src/views/shop/Home.vue" beforeDir="false" afterPath="$PROJECT_DIR$/dailytask/frontend/src/views/shop/Home.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dailytask/frontend/src/views/shop/Login.vue" beforeDir="false" afterPath="$PROJECT_DIR$/dailytask/frontend/src/views/shop/Login.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dailytask/frontend/src/views/shop/MyOrders.vue" beforeDir="false" afterPath="$PROJECT_DIR$/dailytask/frontend/src/views/shop/MyOrders.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dailytask/frontend/src/views/shop/Orders.vue" beforeDir="false" afterPath="$PROJECT_DIR$/dailytask/frontend/src/views/shop/Orders.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dailytask/frontend/src/views/shop/ProductDetail.vue" beforeDir="false" afterPath="$PROJECT_DIR$/dailytask/frontend/src/views/shop/ProductDetail.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dailytask/frontend/src/views/shop/Profile.vue" beforeDir="false" afterPath="$PROJECT_DIR$/dailytask/frontend/src/views/shop/Profile.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dailytask/frontend/src/views/shop/ShopCart.vue" beforeDir="false" afterPath="$PROJECT_DIR$/dailytask/frontend/src/views/shop/ShopCart.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dailytask/frontend/src/views/shop/ShopLayout.vue" beforeDir="false" afterPath="$PROJECT_DIR$/dailytask/frontend/src/views/shop/ShopLayout.vue" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -167,7 +185,7 @@
       <workItem from="1782096028040" duration="4573000" />
       <workItem from="1782302642910" duration="3383000" />
       <workItem from="1782882804761" duration="5079000" />
-      <workItem from="1782888025532" duration="6989000" />
+      <workItem from="1782888025532" duration="12111000" />
     </task>
     <servers />
   </component>

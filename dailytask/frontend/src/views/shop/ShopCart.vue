@@ -113,6 +113,9 @@ export default {
         .toFixed(2)
     }
   },
+  watch: {
+    '$route'() { this.loadCart() }
+  },
   created() {
     this.loadCart()
   },
@@ -125,7 +128,7 @@ export default {
         const data = res.data
         // 防御性编码：确保返回的是数组，为每项添加 checked 属性
         this.cartList = Array.isArray(data)
-          ? data.map(item => ({ ...item, checked: false }))
+          ? data.map(item => ({ ...item, checked: false, _qtyReady: false }))
           : []
       } catch (e) {
         this.$message.error('加载购物车失败，请稍后重试')
@@ -147,6 +150,7 @@ export default {
 
     /** 修改数量 → 实时同步后端 */
     async onQuantityChange(item) {
+      if (!item._qtyReady) { item._qtyReady = true; return }
       try {
         await updateCartItem({ id: item.id, quantity: item.quantity })
       } catch (e) {
@@ -200,7 +204,7 @@ export default {
 
     /** 点击商品图片或名称 → 跳转商品详情 */
     goDetail(productId) {
-      this.$router.push(`/shop/product/${productId}`)
+      this.$router.push(`/shop/detail/${productId}`)
     }
   }
 }

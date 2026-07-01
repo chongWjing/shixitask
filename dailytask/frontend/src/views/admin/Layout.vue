@@ -25,6 +25,8 @@
 </template>
 
 <script>
+import { logout } from '../../api/user'
+
 export default {
   name: 'AdminLayout',
   computed: {
@@ -32,8 +34,11 @@ export default {
     adminName() { return localStorage.getItem('username') || '管理员' }
   },
   methods: {
-    handleLogout() {
-      this.$confirm('确定要退出登录吗？', '提示', { type: 'warning' }).then(() => {
+    async handleLogout() {
+      this.$confirm('确定要退出登录吗？', '提示', { type: 'warning' }).then(async () => {
+        try {
+          await logout()
+        } catch { /* 忽略 */ }
         localStorage.removeItem('token'); localStorage.removeItem('username'); localStorage.removeItem('role')
         this.$router.push('/admin/login')
         this.$message.success('已退出登录')

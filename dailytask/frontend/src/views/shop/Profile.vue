@@ -32,20 +32,46 @@
 </template>
 
 <script>
+import { getUserInfo, logout } from '../../api/user'
+
 export default {
   name: 'UserProfile',
   data() {
     return {
       username: '',
-      role: ''
+      role: '',
+      phone: ''
     }
   },
-  created() {
-    this.username = localStorage.getItem('username') || ''
-    this.role = localStorage.getItem('role') || '0'
+  async created() {
+    // 优先从后端获取最新用户信息
+    const token = localStorage.getItem('token')
+    if (token) {
+      try {
+        const res = await getUserInfo()
+        if (res && res.data) {
+          this.username = res.data.username || ''
+          this.role = String(res.data.role ?? '0')
+          this.phone = res.data.phone || ''
+          // 同步更新localStorage
+          localStorage.setItem('username', this.username)
+          localStorage.setItem('role', this.role)
+        }
+      } catch {
+        // 接口失败则从localStorage读取
+        this.username = localStorage.getItem('username') || ''
+        this.role = localStorage.getItem('role') || '0'
+      }
+    } else {
+      this.username = localStorage.getItem('username') || ''
+      this.role = localStorage.getItem('role') || '0'
+    }
   },
   methods: {
-    handleLogout() {
+    async handleLogout() {
+      try {
+        await logout()
+      } catch { /* 忽略 */ }
       localStorage.removeItem('token')
       localStorage.removeItem('username')
       localStorage.removeItem('role')
