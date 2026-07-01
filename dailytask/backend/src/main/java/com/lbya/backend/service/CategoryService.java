@@ -1,0 +1,15 @@
+package com.lbya.backend.service;
+
+import com.lbya.backend.entity.Category;
+import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
+
+/**
+* @author admin
+* @description 针对表【category(商品分类表)】的数据库操作Service
+* @createDate 2026-06-22 11:05:29
+*/
+public interface CategoryService extends IService<Category> {
+    List<Category> getAllCategorys();
+}

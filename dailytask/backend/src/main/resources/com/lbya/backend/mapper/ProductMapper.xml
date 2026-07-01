@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lbya.backend.mapper.ProductMapper">
+
+    <resultMap id="BaseResultMap" type="com.lbya.backend.entity.Product">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="price" column="price"/>
+        <result property="originalPrice" column="original_price"/>
+        <result property="description" column="description"/>
+        <result property="category" column="category"/>
+        <result property="image" column="image"/>
+        <result property="stock" column="stock"/>
+        <result property="sales" column="sales"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id
+        ,name,price,original_price,description,category,
+        image,stock,sales,status,create_time
+    </sql>
+
+    <!--    分页查询搜友上架的商品-->
+    <select id="findByPage" resultType="com.lbya.backend.entity.Product">
+        select
+        <include refid="Base_Column_List"/>
+        from product
+        where status=1 order by create_time desc limit #{offset},#{size}
+    </select>
+    <!--    统计上架的商品总数-->
+    <select id="count" resultType="long">
+        select count(*)
+        from product
+        where status = 1
+    </select>
+
+    <!--    根据关键词搜索商品-->
+    <select id="searchByKeyword" resultType="com.lbya.backend.entity.Product">
+        select
+        <include refid="Base_Column_List"/>
+        from product
+        where status=1 and name like concat('%',#{keyword},'%')
+        or description like concat('%',#{keyword},'%')
+    </select>
+    <!--    根据分类，分页查询商品-->
+    <select id="findByCategoryPage" resultType="com.lbya.backend.entity.Product">
+        select
+        <include refid="Base_Column_List"/>
+        from product
+        where status=1 and category=#{category}
+        order by create_time desc limit #{offset},#{size}
+    </select>
+    <!--    分类统计商品数量-->
+    <select id="countByCategory" resultType="long">
+        select count(*)
+        from product
+        where status = 1
+          and category = #{category}
+    </select>
+
+    <!--    全文搜索 mysql full text + ngram -->
+    <select id="searchByKeywordFullText" resultType="com.lbya.backend.entity.Product">
+        select *, match (name, description) against( #{keyword} in natural language mode) as relevance
+        from product
+        where status=1
+          and match (name
+            , description) against(#{keyword} in natural language mode)
+        order by relevance desc
+    </select>
+
+    <!--    根据关键词分页查询商品-->
+    <select id="searchByKeywordPage" resultType="com.lbya.backend.entity.Product">
+        select
+        <include refid="Base_Column_List"/>
+        from product
+        where status=1 and (name like concat('%',#{keyword},'%') or description like concat('%',#{keyword},'%'))
+        order by create_time desc limit #{offset},#{size}
+    </select>
+
+    <!--    统计搜索数量-->
+    <select id="countByKyword" resultType="long">
+        select count(*)
+        from product
+        where status = 1
+          and (name like concat('%', #{keyword}, '%') or description like concat('%', #{keyword}, '%'))
+    </select>
+
+    <!-- Admin: 查询所有商品（不过滤status） -->
+    <select id="findAllByPage" resultType="com.lbya.backend.entity.Product">
+        select <include refid="Base_Column_List"/> from product order by create_time desc limit #{offset},#{size}
+    </select>
+    <select id="countAll" resultType="long">select count(*) from product</select>
+
+    <!-- 扣减库存 -->
+    <update id="decreaseStock">
+        UPDATE product SET stock = stock - #{quantity} WHERE id = #{id} AND stock >= #{quantity}
+    </update>
+
+    <!-- 增加销量 -->
+    <update id="increaseSales">
+        UPDATE product SET sales = sales + #{quantity} WHERE id = #{id}
+    </update>
+
+</mapper>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huashan.backend.mapper.CartMapper">
+
+    <resultMap id="BaseResultMap" type="com.huashan.backend.entity.Cart">
+            <id property="id" column="id" />
+            <result property="userId" column="user_id" />
+            <result property="productId" column="product_id" />
+            <result property="quantity" column="quantity" />
+            <result property="createTime" column="create_time" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,product_id,quantity,create_time
+    </sql>
+
+<!--    扩展的ResultMap，装商品信息-->
+    <resultMap id="CartWithProductMap" type="com.huashan.backend.entity.Cart" extends="BaseResultMap">
+        <association property="product" javaType="com.huashan.backend.entity.Product">
+            <id property="id" column="p_id"/>
+            <result property="name" column="p_name"/>
+            <result property="price" column="p_price"/>
+            <result property="originalPrice" column="p_original_price"/>
+            <result property="description" column="p_description"/>
+            <result property="category" column="p_category"/>
+            <result property="image" column="p_image"/>
+            <result property="stock" column="p_stock"/>
+            <result property="sales" column="p_sales"/>
+            <result property="status" column="p_status"/>
+            <result property="createTime" column="p_create_time"/>
+        </association>
+    </resultMap>
+
+<!--    根据用户ID查询购物车中的商品列表-->
+    <select id="findByUserId"  resultMap="CartWithProductMap">
+        select
+          c.id,
+          c.user_id,
+          c.product_id,
+          c.quantity,
+          c.create_time,
+          p.id as p_id,
+          p.name as p_name,
+          p.price as p_price,
+          p.original_price as p_original_price,
+          p.description as p_description,
+          p.category as p_category,
+          p.image as p_image,
+          p.stock as p_stock,
+          p.sales as p_sales,
+          p.status as p_status,
+          p.create_time as p_create_time
+        from cart c
+        left join product p  on c.product_id=p.id
+        where c.user_id=#{userId}
+        order by c.create_time desc
+    </select>
+
+    <select id="findById">
+        select <include refid="Base_Column_List"/> from cart
+        where id=#{id}
+    </select>
+
+    <insert id="insert">
+        insert into cart(user_id,product_id,quantity,create_time)
+        values(#{userId},#{productId},#{quantity},NOW())
+    </insert>
+
+    <update id="updateQuantity">
+        update cart
+        set quantity=#{quantity}
+        where id=#{id}
+    </update>
+
+    <delete id="deleteById">
+        delete from cart
+        where id=#{id}
+    </delete>
+
+    <delete id="deleteByUserId">
+        delete from cart
+        where user_id= #{userId}
+    </delete>
+
+    <select id="findByUserIdAndProductId" resultType="com.huashan.backend.entity.Cart">
+        select <include refid="Base_Column_List"/> from cart
+        where user_id=#{userId} and product_id=#{productId}
+    </select>
+
+
+
+</mapper>

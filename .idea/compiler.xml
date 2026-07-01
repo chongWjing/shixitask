@@ -7,15 +7,19 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="smart" />
-        <module name="mcp-calculator-server" />
+        <module name="smart-ecommerce" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="mcp-calculator-server" target="17" />
+      <module name="smart" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="mcp-calculator-server" options="-parameters" />
       <module name="smart" options="-parameters" />
+      <module name="smart-ecommerce" options="-parameters" />
     </option>
   </component>
 </project>

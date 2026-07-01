@@ -1,9 +1,0 @@
-{
-  "name": "花之恋登录页生成器",
-  "id": "flower-login-generator",
-  "api": "1.0.0",
-  "main": "code.js",
-  "capabilities": [],
-  "enableProposedApi": false,
-  "editorType": ["figma"]
-}

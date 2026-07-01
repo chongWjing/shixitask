@@ -1,0 +1,7 @@
+# Mock模式配置 - 在没有API Key时激活
+# 启动时使用：--spring.profiles.active=mock
+spring:
+  ai:
+    openai:
+      api-key: sk-mock
+      base-url: https://mock.local

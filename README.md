@@ -1,200 +1,229 @@
-# 实习作业 - Spring AI 全栈开发
+# 花之恋鲜花电商平台
 
-> 每日任务完成记录，涵盖 MCP、多模型、全栈开发、数据库设计等。
+> 基于 Spring Boot 3 + Spring AI + Vue 3 的鲜花电商全栈项目
 
-## 项目总结
+## 项目简介
 
-本项目是一个 **AI 驱动的鲜花电商平台**，采用前后端分离架构，整合了 Spring AI、MCP 协议、多模型智能路由等 AI 能力，同时实现了完整的用户管理和商品展示功能。
-
-### 技术架构
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Vue3 前端 (frontend)                  │
-│              Element Plus + Vite + Axios                 │
-│         http://localhost:5173  →  proxy → 8080           │
-└───────────────────────┬─────────────────────────────────┘
-                        │ REST API
-┌───────────────────────▼─────────────────────────────────┐
-│              Spring Boot 后端 (dailytask)                │
-│    ┌──────────┐  ┌──────────┐  ┌──────────────────┐    │
-│    │ 用户管理  │  │ AI 对话   │  │ MCP 工具调用      │    │
-│    │ JWT+MD5  │  │ V4 Flash │  │ 计算器+邮件       │    │
-│    └──────────┘  └──────────┘  └──────────────────┘    │
-│                         │                               │
-│              ┌──────────▼──────────┐                    │
-│              │   MultiModelConfig  │                    │
-│              │  智能路由(R1/V3)     │                    │
-│              └─────────────────────┘                    │
-└───────────────────────┬─────────────────────────────────┘
-                        │ stdio / HTTPS
-         ┌──────────────▼──────────────┐
-         │   DeepSeek API (V4 Flash)   │
-         │   MCP Server (Calculator)   │
-         └─────────────────────────────┘
-```
-
-### 核心功能
-
-| 模块 | 功能 | 技术 |
-|------|------|------|
-| AI 对话 | 智能客服，支持多轮对话 | Spring AI 1.0 + DeepSeek V4 Flash |
-| 智能路由 | 关键词匹配自动选模型 | R1(推理) / V3(通用) |
-| MCP 工具 | 计算器、邮件通知 | MCP 协议 + @Tool 注解 |
-| 用户系统 | 登录/注册/登出 | JWT + MD5 + 拦截器 |
-| 商品展示 | 分页列表、分类筛选 | MyBatis-Plus + MySQL |
-
-## 目录结构
-
-```
-实习作业/
-├── dailytask/              # Spring AI 主项目（AI对话 + MCP + 多模型 + 用户管理）
-├── frontend/               # Vue3 前端（花之恋鲜花电商）
-├── day1/                   # Spring AI 项目搭建与同步调用
-├── day2/                   # 流式输出与前端AI实现（教程）
-├── day3/                   # MCP全实操与多模型（教程）
-├── day4/                   # 前端开发（Figma设计稿 + 开发文档）
-├── day5/                   # Spring Boot 后端（MyBatis-Plus + JWT + MySQL）
-├── day6/                   # 技术手册：SpringBoot项目搭建教程
-├── mcp-calculator-server/  # MCP Server（计算器 + 邮件工具）
-├── 原型图/                  # 页面原型设计（HTML）
-├── figma-plugin/           # Figma 插件（设计稿生成）
-└── README.md               # 本文档
-```
-
-## 快速启动
-
-### 1. 启动后端（dailytask）
-
-```bash
-cd dailytask
-mvn spring-boot:run
-# 启动在 http://localhost:8080
-```
-
-> API Key 已配置在 `application-local.yaml`，使用 DeepSeek V4 Flash
-
-### 2. 启动前端（frontend）
-
-```bash
-cd frontend
-npm install    # 首次需要
-npm run dev
-# 启动在 http://localhost:5173
-```
-
-### 3. 测试账号
-
-| 用户名 | 密码 | 角色 |
-|--------|------|------|
-| test | 123456 | 普通用户 |
-
-## 接口测试
-
-### 用户管理
-
-```bash
-# 登录
-curl -X POST http://localhost:8080/user/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"test","password":"123456"}'
-
-# 返回: {"code":200,"data":{"user":{...},"token":"Bearer xxx"}}
-
-# 获取用户信息（需要Token）
-curl http://localhost:8080/user/info \
-  -H "Authorization: Bearer <token>"
-
-# 注册新用户
-curl -X POST http://localhost:8080/user/register \
-  -H "Content-Type: application/json" \
-  -d '{"username":"newuser","password":"123456","phone":"13800138000"}'
-
-# 登出
-curl -X POST http://localhost:8080/user/logout \
-  -H "Authorization: Bearer <token>"
-```
-
-### AI 对话
-
-```bash
-# V3 快速对话
-curl "http://localhost:8080/model/v3?message=你好" \
-  -H "Authorization: Bearer <token>"
-
-# R1 推理模型
-curl "http://localhost:8080/model/r1?message=请推导勾股定理" \
-  -H "Authorization: Bearer <token>"
-
-# 智能路由（自动选模型）
-curl "http://localhost:8080/model/smart?message=为什么天是蓝色的" \
-  -H "Authorization: Bearer <token>"
-# 含"为什么"等关键词 → 自动路由到R1推理模型
-```
-
-### MCP 工具（需先构建 MCP Server）
-
-```bash
-# 构建 MCP Server
-cd mcp-calculator-server
-mvn package
-
-# 测试MCP工具（通过dailytask调用）
-curl "http://localhost:8080/mcp/add?a=10&b=20" \
-  -H "Authorization: Bearer <token>"
-```
-
-## 各日任务详情
-
-### Day1 - Spring AI 项目搭建
-
-搭建 Spring AI 基础项目，实现同步调用、角色设定、结构化输出等基础功能。
-
-**文件**: `day1/` - 7 个 Java 控制器 + 配置文件
-
-### Day2 - 流式输出与前端AI实现
-
-实现 SSE 流式输出，前端实时显示 AI 回复内容。
-
-**文件**: `day2/Day2_流式输出与前端AI实现.md`（教程文档）
-
-### Day3 - MCP 与多模型
-
-- **MCP Client**: 连接本地 MCP Server，调用工具函数
-- **多模型**: DeepSeek V3（通用）+ R1（推理）
-- **智能路由**: 关键词匹配自动选择模型
-
-**文件**: `dailytask/` + `mcp-calculator-server/`
-
-### Day4 - 全栈开发
-
-- **前端**: Vue3 + Element Plus，登录/首页/商品/购物车等页面
-- **后端**: 用户管理（JWT + MD5 + 拦截器）
-- **设计**: Figma 设计稿 + HTML 原型
-
-**文件**: `frontend/` + `dailytask/` + `原型图/` + `figma-plugin/`
-
-### Day5 - Spring Boot 后端
-
-完整电商后端：用户、商品、订单、购物车、分类、评价 6 张表。
-
-**文件**: `day5/` - 35 个 Java 文件 + MyBatis-Plus + JWT
-
-### Day6 - 技术手册
-
-Spring Boot 项目搭建教学文档，涵盖统一响应、跨域配置、实体类设计等。
-
-**文件**: `day6/技术手册_第6章_SpringBoot项目搭建.md`
+花之恋是一个鲜花电商平台，包含用户端商城和管理后台。集成 Spring AI + DeepSeek 大模型，支持智能搜索和自然语言查询数据库。
 
 ## 技术栈
 
 | 层级 | 技术 |
 |------|------|
-| 前端 | Vue 3 + Vite + Element Plus + Axios |
-| 后端 | Spring Boot 3.5.15 + Spring AI 1.0 |
-| ORM | MyBatis-Plus 3.5.9 |
-| 数据库 | MySQL 8 |
-| 认证 | JWT (java-jwt 4.4.0) + MD5 |
-| AI | DeepSeek V4 Flash / R1（OpenAI 兼容） |
-| 协议 | MCP (Model Context Protocol) |
-| 设计 | Figma + HTML 原型 |
+| 后端 | Spring Boot 3.5.15 + MyBatis-Plus 3.5.9 + MySQL 8.0 |
+| 前端 | Vue 3 + Element Plus + Vite |
+| AI | Spring AI 1.0.0 + DeepSeek |
+| 认证 | JWT + MD5 |
+
+## 项目结构
+
+```
+dailytask/
+├── backend/                    # 后端 Spring Boot 项目
+│   ├── src/main/java/com/lbya/backend/
+│   │   ├── config/            # 配置类（CORS、JWT、AI、多模型）
+│   │   ├── controller/        # 控制器（23个）
+│   │   ├── entity/            # 实体类
+│   │   ├── mapper/            # MyBatis Mapper
+│   │   ├── service/           # 业务逻辑层
+│   │   └── util/              # 工具类（JWT、MD5、Result）
+│   └── src/main/resources/
+│       ├── application.yaml           # 主配置
+│       ├── application-local.yaml     # 本地配置（已忽略）
+│       └── sql/init.sql              # 数据库初始化脚本
+├── frontend/                   # 前端 Vue 3 项目
+│   └── src/
+│       ├── api/               # API 接口封装
+│       ├── router/            # 路由配置
+│       └── views/
+│           ├── shop/          # 商城页面（首页、登录、商品详情、购物车、订单）
+│           └── admin/         # 后台页面（登录、仪表盘、商品管理、订单管理、AI查询）
+└── README.md
+```
+
+## 功能特性
+
+### 用户端商城
+- 首页轮播图 + 分类导航
+- 商品列表（分页、搜索）
+- 商品详情 + 评价
+- 购物车管理
+- 下单 / 支付 / 确认收货
+- 用户注册 / 登录
+
+### 管理后台
+- 数据仪表盘（销售额、订单数、商品数、趋势图表）
+- 商品管理（增删改查、上下架）
+- 订单管理（列表、发货、状态变更）
+- AI 智能查询（自然语言 → SQL）
+
+### Spring AI 功能
+- 同步对话 / 流式输出（SSE）
+- 多模型对话（V3快速 + R1推理）
+- 角色扮演对话
+- 上下文记忆（20条消息窗口）
+- 结构化输出（AI → Java对象）
+- MCP 工具调用
+- RTF Prompt 框架
+- AI 智能表格查询（NL → SQL，5层安全校验）
+
+## 快速开始
+
+### 环境要求
+
+- JDK 17+
+- Maven 3.8+
+- Node.js 18+
+- MySQL 8.0+
+
+### 1. 初始化数据库
+
+```bash
+# 登录 MySQL 执行初始化脚本
+mysql -u root -p123456 < dailytask/backend/src/main/resources/sql/init.sql
+```
+
+或在 MySQL 客户端中打开 `init.sql` 执行。
+
+**默认账号：**
+| 用户名 | 密码 | 角色 |
+|--------|------|------|
+| admin | 123456 | 管理员 |
+| test | 123456 | 普通用户 |
+| lily | 123456 | 普通用户 |
+
+### 2. 启动后端
+
+```bash
+cd dailytask/backend
+
+# 方式一：命令行
+mvn spring-boot:run
+
+# 方式二：IDEA
+# 运行 BackendApplication 类
+```
+
+### 3. 启动前端
+
+```bash
+cd dailytask/frontend
+npm install
+npm run dev
+```
+
+访问 http://localhost:5173
+
+### 4. 配置 AI（可选）
+
+如需使用 AI 功能，配置 DeepSeek API Key：
+
+**方式一：直接修改 application.yaml**
+
+```yaml
+spring:
+  ai:
+    openai:
+      api-key: sk-your-api-key-here  # 改成自己的
+```
+
+**方式二：使用本地配置（推荐）**
+
+创建 `application-local.yaml`：
+```yaml
+spring:
+  ai:
+    openai:
+      api-key: sk-your-api-key-here
+```
+
+启动时添加参数：
+```
+-Dspring.profiles.active=local
+```
+
+获取 API Key：https://platform.deepseek.com/
+
+## 接口文档
+
+### 用户接口
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | /api/user/register | 用户注册 |
+| POST | /api/user/login | 用户登录 |
+
+### 商品接口
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/product/list | 商品列表 |
+| GET | /api/product/{id} | 商品详情 |
+| GET | /api/product/search | 商品搜索 |
+
+### 订单接口（需登录）
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | /api/order/create | 创建订单 |
+| GET | /api/order/my | 我的订单 |
+| PUT | /api/order/pay/{id} | 支付订单 |
+| PUT | /api/order/cancel/{id} | 取消订单 |
+| PUT | /api/order/confirm/{id} | 确认收货 |
+
+### 购物车接口（需登录）
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/cart/list | 购物车列表 |
+| POST | /api/cart/add | 添加购物车 |
+| PUT | /api/cart/update | 更新数量 |
+| DELETE | /api/cart/delete/{id} | 删除商品 |
+
+### 管理后台接口（需管理员权限）
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/admin/product/list | 商品管理列表 |
+| POST | /api/admin/product/add | 新增商品 |
+| PUT | /api/admin/product/update | 修改商品 |
+| PUT | /api/admin/product/status | 商品上下架 |
+| DELETE | /api/admin/product/delete/{id} | 删除商品 |
+| GET | /api/admin/order/list | 订单管理列表 |
+| PUT | /api/admin/order/status | 订单状态变更 |
+| GET | /api/admin/stats/overview | 数据概览 |
+| GET | /api/admin/stats/orderTrend | 订单趋势 |
+| GET | /api/admin/stats/categorySales | 分类销售 |
+
+### AI 接口
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | /api/ai/query | 智能查询（自然语言 → SQL） |
+| POST | /api/ai/chat | AI 对话 |
+
+## 数据库表结构
+
+| 表名 | 说明 | 数据量 |
+|------|------|--------|
+| user | 用户表 | 3条 |
+| product | 商品表 | 10条 |
+| orders | 订单表 | 4条 |
+| cart | 购物车表 | - |
+| category | 分类表 | 6条 |
+| review | 评价表 | 8条 |
+
+## 常见问题
+
+**Q: AI 功能报错 401？**
+A: 未配置 API Key，请参考"配置 AI"章节。
+
+**Q: 数据库连接失败？**
+A: 检查 MySQL 是否启动，用户名密码是否正确（默认 root/123456）。
+
+**Q: 前端请求 404？**
+A: 确认后端已启动，Vite 代理配置正确。
+
+## License
+
+MIT
